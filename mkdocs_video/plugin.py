@@ -36,7 +36,7 @@ class Plugin(mkdocs.plugins.BasePlugin):
 
     def create_repl_tag(self, tag):
         """
-        Сreate a replacement tag with the specified source and style.
+        Create a replacement tag with the specified source and style.
 
         return: str
         """
@@ -76,8 +76,16 @@ class Plugin(mkdocs.plugins.BasePlugin):
             else:
                 repl_tag.set("frameborder", "0")
                 repl_tag.set("allowfullscreen")
+                # Fix for YouTube Error 153 (Video player configuration error)
+                repl_tag.set("referrerpolicy", "strict-origin-when-cross-origin")
+                # Added modern feature policy tokens required by YouTube
+                repl_tag.set("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share")
         else:
             tag.attrib.pop("disable-global-config")
+            # Apply the policy even if global config is disabled, as YouTube strictly requires it now
+            if not is_video:
+                repl_tag.set("referrerpolicy", "strict-origin-when-cross-origin")
+                repl_tag.set("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share")
 
         # Duplicate everything from original tag (except 2)
         for attr, val in tag.attrib.items():
